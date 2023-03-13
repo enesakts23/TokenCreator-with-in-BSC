@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: Unlicensed
 
 pragma solidity ^0.8.4;
 
@@ -14,20 +13,25 @@ interface IERC20 {
 }
 
 library SafeMath {
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) 
+    {
         unchecked {
             uint256 c = a + b;
             if (c < a) return (false, 0);
             return (true, c);
         }
     }
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) 
+    {
         unchecked {
             if (b > a) return (false, 0);
             return (true, a - b);
         }
     }
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) 
+    {
         unchecked {
             if (a == 0) return (true, 0);
             uint256 c = a * b;
@@ -35,46 +39,66 @@ library SafeMath {
             return (true, c);
         }
     }
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) 
+    {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
         }
     }
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) 
+    {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a % b);
         }
     }
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) 
+    {
         return a + b;
     }
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) 
+    {
         return a - b;
     }
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) 
+    {
         return a * b;
     }
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) 
+    {
         return a / b;
     }
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) 
+    {
         return a % b;
     }
-    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) 
+    {
         unchecked {
             require(b <= a, errorMessage);
             return a - b;
         }
     }
-    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) 
+    {
         unchecked {
             require(b > 0, errorMessage);
             return a / b;
         }
     }
-    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) 
+    {
         unchecked {
             require(b > 0, errorMessage);
             return a % b;
@@ -82,7 +106,9 @@ library SafeMath {
     }
 }
 
-abstract contract Context {
+abstract contract Context    
+{
+    // soyut sözleşme alt sözleşme ana sözleşme altında çağırırlır cüzdanın verisini çeker alım satım işlemi için her cüzdanın verisini çekip dağıtım cüzdanından para yollar
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
@@ -154,7 +180,7 @@ abstract contract Ownable is Context {
     address private _owner;
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     constructor () {
-        _owner = 0xE69Ac38Cd6DA0EA9a540B47399C430131216Ced7;
+        _owner = 0xE68a7521E164718Ee984BaDb9F919f6e44fEE0Fd;
         emit OwnershipTransferred(address(0), _owner);
     }
     function owner() public view virtual returns (address) {
@@ -230,7 +256,8 @@ interface IUniswapV2Pair {
     function initialize(address, address) external;
 }
 
-interface IUniswapV2Router01 {
+interface IUniswapV2Router01 
+{
     function factory() external pure returns (address);
     function WETH() external pure returns (address);
     function addLiquidity(
@@ -243,7 +270,8 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountA, uint amountB, uint liquidity);
-    function addLiquidityETH(
+    
+    function addLiquidityETH(    // ETH-BNB protokol dönüşümü ve swap işlemi için hazır kalıp
         address token,
         uint amountTokenDesired,
         uint amountTokenMin,
@@ -362,7 +390,10 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract COMF is Context, IERC20, Ownable {
+
+//Akıllı sözleşmenin kripto para oluşturduğum kısmı. Bı kısımda temel özellikleri ve vergilendirme sistemini eklediğim kısım.
+
+contract SWT is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
     mapping (address => uint256) private _rOwned;
@@ -371,27 +402,27 @@ contract COMF is Context, IERC20, Ownable {
     mapping (address => bool) private _isExcludedFromFee;
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
-    address private _developmentWalletAddress = 0xE69Ac38Cd6DA0EA9a540B47399C430131216Ced7;
+    address private _developmentWalletAddress = 0x9516e9867F4EAD81fcDe89691eE432F468e953D8; 
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _tTotal = 1000000000000 * 10**18;
+    uint256 private _tTotal = 10000000000 * 10**18;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
-    string private _name = "Comfy Rocket";
-    string private _symbol = "COMF";
+    string private _name = "Sylwest Token";
+    string private _symbol = "SWT";
     uint8 private _decimals = 18;
-    uint256 public _taxFee = 20;
+    uint256 public _taxFee = 10;
     uint256 private _previousTaxFee = _taxFee;
-    uint256 public _developmentFee = 10;
+    uint256 public _developmentFee = 5;
     uint256 private _previousDevelopmentFee = _developmentFee;
-    uint256 public _liquidityFee = 50;
+    uint256 public _liquidityFee = 35;
     uint256 private _previousLiquidityFee = _liquidityFee;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public immutable uniswapV2Pair;
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
-    uint256 public _maxTxAmount = 1000000000000 * 10**18;
-    uint256 private numTokensSellToAddToLiquidity = 1000000000 * 10**18;
+    uint256 public _maxTxAmount = 10000000000 * 10**18; 
+    uint256 private numTokensSellToAddToLiquidity = 10000000000 * 10**18;
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
     event SwapAndLiquify(
@@ -399,14 +430,17 @@ contract COMF is Context, IERC20, Ownable {
         uint256 ethReceived,
         uint256 tokensIntoLiqudity
     );
-    modifier lockTheSwap {
+    /*
+    lockSwap metodu ile piyasa yapıcı olan havuzu açıp kapatmak için bir fonksiyon oluşturdum.  
+    */
+    modifier lockTheSwap {  
         inSwapAndLiquify = true;
         _;
         inSwapAndLiquify = false;
     }
     constructor () {
         _rOwned[owner()] = _rTotal;
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9516e9867F4EAD81fcDe89691eE432F468e953D8);
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
         uniswapV2Router = _uniswapV2Router;
@@ -430,9 +464,12 @@ contract COMF is Context, IERC20, Ownable {
         if (_isExcluded[account]) return _tOwned[account];
         return tokenFromReflection(_rOwned[account]);
     }
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
+    function transfer(address recipient, uint256 amount) public override returns (bool) 
+    {
+
         _transfer(_msgSender(), recipient, amount);
         return true;
+
     }
     function allowance(address owner, address spender) public view override returns (uint256) {
         return _allowances[owner][spender];
@@ -460,7 +497,9 @@ contract COMF is Context, IERC20, Ownable {
     function totalFees() public view returns (uint256) {
         return _tFeeTotal;
     }
-    function deliver(uint256 tAmount) public {
+    
+    function deliver(uint256 tAmount) public 
+    {
         address sender = _msgSender();
         require(!_isExcluded[sender], "Excluded addresses cannot call this function");
         (uint256 rAmount,,,,,,) = _getValues(tAmount);
@@ -468,41 +507,68 @@ contract COMF is Context, IERC20, Ownable {
         _rTotal = _rTotal.sub(rAmount);
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
-    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
-        require(tAmount <= _tTotal, "Amount must be less than supply");
+    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256)  
+    {
+        /*
+        //Reward sistemi için oluşturdum. Kullanıcıların elinde olan kriptoları hesaplar ve dağılımı kontrol eder ve satış işlemi sırasındasatan 
+        kişiden alınacak ücretin bir kısmı eşit olarak diğer cüzdan sahiplerinin cüzdanına aktarılacak.
+        
+        */
+        require(tAmount <= _tTotal, "Must be less than max supply");
         if (!deductTransferFee) {
             (uint256 rAmount,,,,,,) = _getValues(tAmount);
-            return rAmount;
+            return rAmount; // miktara git.
         } else {
             (,uint256 rTransferAmount,,,,,) = _getValues(tAmount);
             return rTransferAmount;
         }
     }
     function tokenFromReflection(uint256 rAmount) public view returns(uint256) {
-        require(rAmount <= _rTotal, "Amount must be less than total reflections");
+        require(rAmount <= _rTotal, "Amount less than max. reflections");
         uint256 currentRate =  _getRate();
         return rAmount.div(currentRate);
     }
     function excludeFromReward(address account) public onlyOwner() {
-        require(!_isExcluded[account], "Account is already excluded");
+        require(!_isExcluded[account], "Account is  excluded");
         if(_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
         }
         _isExcluded[account] = true;
         _excluded.push(account);
     }
-    function includeInReward(address account) external onlyOwner() {
+
+
+//******************************************************************************************************************************************************************
+
+    /*
+    Eğer hesap dizi içinde varsa, dizideki konumu bulunur  ve hesap dizinin sonundaki elemanla değiştirilir. Sonra hesap bakiyesi sıfırlanır ve işaretleni. 
+    Bir hesabın transfer vergisinden muafiyetini kaldırmak ve bu hesabın transferlerinde artık transfer vergisi uygulanmasını sağlamaktır.
+       
+    */
+
+    /*
+    function includeInReward(address account) external onlyOwner() 
+    {
         require(_isExcluded[account], "Account is already included");
+
         for (uint256 i = 0; i < _excluded.length; i++) {
+
             if (_excluded[i] == account) {
-                _excluded[i] = _excluded[_excluded.length - 1];
-                _tOwned[account] = 0;
-                _isExcluded[account] = false;
-                _excluded.pop();
+                _excluded[i] = _excluded[_excluded.length - 1];    // vergi muafiyeti olan cüzdanları tepit etmek için kullanılır burn wallet için düşündüm.
+                                                                   // Bu kodu projeye ekle burn wallet ve dağıtım cüzdanı için 
+               
                 break;
+                //return numTokensSellToAddToLiquidity                
+               
             }
         }
     }
+
+    */
+
+//******************************************************************************************************************************************************************
+
+
     function _transferBothExcluded(address sender, address recipient, uint256 tAmount) private {
     (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity, uint256 tDevelopment) = _getValues(tAmount);
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
